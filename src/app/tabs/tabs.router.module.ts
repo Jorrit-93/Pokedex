@@ -44,6 +44,19 @@ const routes: Routes = [
         ]
       },
       {
+        path: 'pokemon',
+        children: [
+          {
+            path: '/:id',
+            loadChildren: '../poke-detail/poke-detail.module#PokeDetailPageModule'
+          },
+          {
+            path: '',
+            loadChildren: '../poke-detail/poke-detail.module#PokeDetailPageModule'
+          }
+        ]
+      },
+      {
         path: '',
         redirectTo: '/tabs/tab1',
         pathMatch: 'full'
