@@ -7,6 +7,23 @@
 </ion-header>
 
 <ion-content>
+  <ion-list *ngIf="detailObservable | async; let element">
+    <ion-item>
+      <ion-label>
+        <h3>Name: {{element.name}}</h3>
+      </ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>
+        <h3>{{element.base_experience}}</h3>
+      </ion-label>
+    </ion-item>
+    <ion-item>
+      <ion-label>
+        <h3>{{element.id}}</h3>
+      </ion-label>
+    </ion-item>
+  </ion-list>
   
 </ion-content>
   

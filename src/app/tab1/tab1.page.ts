@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PokeAPIService } from '../poke-api.service';
-import { Observable, forkJoin, BehaviorSubject } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { NavController } from '@ionic/angular';
 
 @Component({
@@ -9,60 +9,25 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['tab1.page.scss']
 })
 export class Tab1Page {
-  public navCtrl: NavController;
-  public pokeService: PokeAPIService;
-  public pokemonObservable: Observable<any>;
-  public updatePokemon: any;
-  public currentList: Observable<any>;
-  public dataResults = Array<any>();
-  public pokemonList = Array<Array<any>>();
+  public pokeObservable: Observable<any>;
 
-  constructor(navCtrl: NavController, pokeService: PokeAPIService){
-    this.navCtrl = navCtrl;
-    this.pokeService = pokeService;
-    this.currentList = pokeService.getData('https://pokeapi.co/api/v2/pokemon');
-    this.initPokemonList();
-    this.getPokemon();
+  constructor(public navCtrl: NavController, public pokeAPI: PokeAPIService){
+    this.pokeObservable = this.pokeAPI.pokeList;
+    this.pokeAPI.getNext20Pokemon();
   }
 
-  pokemonClicked(id: any) {
+  pokeClicked(id: any) {
     this.navCtrl.navigateRoot('/tabs/pokemon/' + id);
   }
 
-  initPokemonList() {
-    this.pokemonObservable = Observable.create(observer => {
-      this.updatePokemon = function () {
-        observer.next(this.pokemonList);
-      };
-    });
-  }
-
-  getPokemon() {
-    this.currentList.subscribe(data => {
-      let dataAsAny = data as any;
-      this.updatePokemonList(dataAsAny.results);
-    });
-  }
-
-  updatePokemonList(dataResults: any) {
-    let reqArray = Array<any>();
-    dataResults.forEach(element => {
-      reqArray.push(this.pokeService.getData(element.url));
-    });
-    forkJoin(reqArray).subscribe(data => {
-      this.pokemonList = this.pokemonList.concat(data);
-      this.updatePokemon();
-    });
-  }
-
-  getNext20Pokemon(event) {
-    this.currentList.subscribe(data => {
-      let dataAsAny = data as any;
-      if(dataAsAny.next != undefined) {
-        this.currentList = this.pokeService.getData(dataAsAny.next);
-        this.getPokemon();
-      }
-      event.target.complete();
+  search(value: any) {
+    if(value.length == 0) {
+      value = '-';
+    }
+    this.pokeAPI.findPokemon(value).then(() => {
+      this.pokeObservable = this.pokeAPI.searchList;
+    }).catch(() => {
+      this.pokeObservable = this.pokeAPI.pokeList;
     });
   }
 }

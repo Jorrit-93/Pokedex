@@ -3,7 +3,21 @@
     <ion-title>
       Pokémon
     </ion-title>
+    <ion-label slot="end">
+      <ion-searchbar #input (ionInput)="search(input.value)" [showCancelButton]="true" animated></ion-searchbar>
+    </ion-label>
   </ion-toolbar>
 </ion-header>
 
-<ion-content></ion-content>
+<ion-content>
+    <ion-list>
+      <ion-item *ngFor="let element of pokeObservable | async" [button]="true" (click)="pokeClicked(element.id)" detail>
+        <ion-thumbnail slot="start">
+          <ion-img [src]="element.sprites.front_default"></ion-img>
+        </ion-thumbnail>
+        <ion-label>
+          <h3>{{element.name}}</h3>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
