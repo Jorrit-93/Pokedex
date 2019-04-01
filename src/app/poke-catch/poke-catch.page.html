@@ -1,0 +1,11 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>poke-catch</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content padding>
+  <h1 *ngIf="terminal; async let element">{{element}}</h1>
+  <h1 *ngIf="text; async let element">{{element}}</h1>
+  <ion-img *ngIf="pokemon.pokemon; let element" [src]="element.sprites.front_default"></ion-img>
+</ion-content>

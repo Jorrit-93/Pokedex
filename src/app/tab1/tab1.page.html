@@ -11,7 +11,7 @@
 
 <ion-content>
   <ion-list>
-    <ion-item *ngFor="let element of pokeObservable | async" [button]="true" (click)="pokeClicked(element.id)" detail>
+    <ion-item *ngFor="let element of observable | async" [button]="true" (click)="pokeClicked(element.id)" detail>
       <ion-thumbnail slot="start">
         <ion-img [src]="element.sprites.front_default"></ion-img>
       </ion-thumbnail>
@@ -21,7 +21,7 @@
     </ion-item>
   </ion-list>
 
-  <ion-infinite-scroll (ionInfinite)="pokeAPI.getNext20Pokemon($event)">
+  <ion-infinite-scroll *ngIf="!searching" (ionInfinite)="pokeAPI.getNext20Pokemon($event)">
     <ion-infinite-scroll-content></ion-infinite-scroll-content>
   </ion-infinite-scroll>
 </ion-content>

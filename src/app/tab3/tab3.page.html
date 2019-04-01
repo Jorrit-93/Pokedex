@@ -7,20 +7,5 @@
 </ion-header>
 
 <ion-content>
-    <div class="map-container">
-      <div id="mapId" style="width: 100%; height: 100%"></div>
-    </div>
-    <!-- <ion-list>
-      <ion-item *ngFor="let element of pokeObservable | async" [button]="true" (click)="pokeClicked(element.pokemon.id)" detail>
-        <ion-thumbnail slot="start">
-          <ion-img [src]="element.pokemon.sprites.front_default"></ion-img>
-        </ion-thumbnail>
-        <ion-label>
-          <h3>{{element.pokemon.name}}</h3>
-        </ion-label>
-        <ion-label>
-          <h6>distance: {{element.distance}}m / lat: {{element.lat}} / lon: {{element.lon}}</h6>
-        </ion-label>
-      </ion-item>
-    </ion-list> -->
-  </ion-content>
+  <div id="map" style="width: 100%; height: 100%"></div>
+</ion-content>

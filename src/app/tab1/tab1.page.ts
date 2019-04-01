@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { PokeAPIService } from '../poke-api.service';
-import { Observable, forkJoin } from 'rxjs';
+import { Observable } from 'rxjs';
 import { NavController } from '@ionic/angular';
 
 @Component({
@@ -9,10 +9,11 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['tab1.page.scss']
 })
 export class Tab1Page {
-  public pokeObservable: Observable<any>;
+  public observable: Observable<any>;
+  public searching: boolean = false;
 
   constructor(public navCtrl: NavController, public pokeAPI: PokeAPIService){
-    this.pokeObservable = this.pokeAPI.pokeList;
+    this.observable = this.pokeAPI.pokemon;
     this.pokeAPI.getNext20Pokemon();
   }
 
@@ -23,11 +24,15 @@ export class Tab1Page {
   search(value: any) {
     if(value.length == 0) {
       value = '-';
+      this.searching = false;
+    }
+    else {
+      this.searching = true;
     }
     this.pokeAPI.findPokemon(value).then(() => {
-      this.pokeObservable = this.pokeAPI.searchList;
+      this.observable = this.pokeAPI.search;
     }).catch(() => {
-      this.pokeObservable = this.pokeAPI.pokeList;
+      this.observable = this.pokeAPI.pokemon;
     });
   }
 }

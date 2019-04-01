@@ -8,6 +8,8 @@ import { IonicStorageModule } from '@ionic/storage';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
+import { Vibration } from '@ionic-native/vibration/ngx';
+import { Gyroscope } from '@ionic-native/gyroscope/ngx';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -30,6 +32,8 @@ import { StorageService } from './storage.service';
     PokeAPIService,
     StorageService,
     Geolocation,
+    Vibration,
+    Gyroscope,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]

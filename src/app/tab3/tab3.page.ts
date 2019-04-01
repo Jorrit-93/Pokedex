@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { PokeAPIService } from '../poke-api.service';
 import { StorageService } from '../storage.service';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { NavController } from '@ionic/angular';
+import { GeocacheItem } from '../geocache-item';
 import Leaflet from 'leaflet';
+import { promise } from 'protractor';
 
 @Component({
   selector: 'app-tab3',
@@ -11,96 +12,190 @@ import Leaflet from 'leaflet';
   styleUrls: ['tab3.page.scss']
 })
 export class Tab3Page {
-  private _pokeArray = Array<any>();
-  private _pokeList: BehaviorSubject<any[]> = new BehaviorSubject([]);
-  get pokeList(): Observable<any[]> { return this._pokeList.asObservable() }
-
-  map: Leaflet.Map;
-  center: Leaflet.PointTuple;
-
-  public pokeObservable: Observable<any>;
+  private map: Leaflet.Map;
+  private markers: any;
+  private caches: GeocacheItem[];
+  private marker: any;
+  private currentPos: any;
   
-  constructor(private geolocation: Geolocation, private pokeAPI: PokeAPIService, private storage: StorageService) {
-    this.pokeObservable = this._pokeList;
-
-
-    const lat1 = 51.4254538354916;
-    const lon1 = 6.14799866415185;
-    const distance = 500; //494
-    this.locationInRad(lat1, lon1, distance).then(data => {
-      console.log(data);
-    });
+  constructor(public navCtrl: NavController, private geolocation: Geolocation, private storage: StorageService) {
   }
 
-  ionViewDidEnter(){
-    console.log('test');
-    this.leafletMap();
-  }
-  
-  leafletMap(){
-    this.center = [28.644800, 77.216721];
-    this.map = Leaflet.map('mapId', {
-      center: this.center,
-      zoom: 13
-    });
+  ngOnInit() {
+    if(this.map == null) {
+      this.map = Leaflet.map('map');
+      Leaflet.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attributions: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors', maxZoom: 18, minZoom: 13 }).addTo(this.map);
+      this.markers = Leaflet.layerGroup().addTo(this.map);
+      const scope = this;
+      setTimeout(() => { scope.map.invalidateSize(); }, 100);
+    }
 
-    var position = Leaflet.tileLayer('http://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'edupala.com © ionic LeafLet'
-    }).addTo(this.map);
+    // this.geolocation.watchPosition({ timeout: 1000 }).subscribe(geoData => {
+    //   this.map.setView([geoData.coords.latitude, geoData.coords.longitude], 18);
+      
+    //   // this.map.on("move", () => {
+    //   //   this.marker.setLatLng([this.map.getCenter().lat, this.map.getCenter().lng]);
+    //   //   this.currentPos = this.map.getCenter();
+    //   //   this.caches.forEach(element => {
+    //   //     this.locationInRad(element.lat, element.lng, 11).then(data => {
+    //   //       if(data) {
+    //   //         this.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
+    //   //       }
+    //   //     });
+    //   //   });
+    //   // });
+    // });
 
-    var marker = new Leaflet.Marker(this.center);
-    this.map.addLayer(marker);
+    this.marker = Leaflet.marker();
+    // this.geolocation.getCurrentPosition().then(async geoData => {
+      this.map.setView([51.688592, 5.287212], 18);
+      this.marker.setLatLng([this.map.getCenter().lat, this.map.getCenter().lng]);
+      this.marker.addTo(this.map);
 
-    marker.bindPopup("<p>Tashi Delek.<p>Delhi</p>");
-  }
+      // this.initGeocaches();
+      
 
-  pokeClicked(id: any) {
-    this.pokeAPI.findPokemon(id).then(data => {
-      this.storage.setPokemon(data);
-    });
-  }
+      // this.addLocations(10);
 
-  addLocations(amount: number){
-    this.geolocation.getCurrentPosition().then(geoData => {
-      const lat1 = geoData.coords.latitude;
-      const lon1 = geoData.coords.longitude;
-      for(let i = 0; i < amount; i++) {
-        const lat2 = lat1 + (Math.random() - 0.5) * 2 * 0.005; //0.01 lat ≈ 1 km
-        const lon2 = lon1 + (Math.random() - 0.5) * 2 * 0.005; //0.01 lon ≈ 1 km
-        const d = this.calcDistance(lat1, lon1, lat2, lon2);
-        this.pokeAPI.findPokemon((Math.random() * 807).toFixed()).then(pokeData => { //807 pokemon in database
-          const newLocation = new class {
-            public lat = lat2;
-            public lon = lon2;
-            public distance = d.toFixed();
-            public pokemon = pokeData;
-          }
-          this._pokeArray.push(newLocation);
-          this._pokeList.next(this._pokeArray);
-        });
-      }
-    }).catch((error) => {
-      console.log('Error getting location', error);
-    });
-  }
+      // this.geolocation.watchPosition().subscribe(geoData => {
+      //   this.map.setLatLng([geoData.coords.latitude, geoData.coords.longitude], 18);
+      // });
+    // });
 
-  locationInRad(lat1: number, lon1: number, radius: number) {
-    return new Promise(resolve => {
-      this.geolocation.getCurrentPosition().then(geoData => {
-        const lat2 = geoData.coords.latitude;
-        const lon2 = geoData.coords.longitude;
-        const distance = this.calcDistance(lat1, lon1, lat2, lon2);
-        resolve(distance < radius);
+    const scope = this;
+    this.map.on('move', () => {
+      scope.currentPos = scope.map.getCenter();
+      scope.marker.setLatLng([scope.currentPos.lat, scope.currentPos.lng]);
+      scope.caches.forEach(element => {
+        if(element.active && scope.locationInRad(element.lat, element.lng, 11)) {
+          scope.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
+          element.active = false;
+          this.storage.setGeocache([element]);
+        }
       });
     });
+    this.initGeocaches();
   }
 
-  calcDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  ionViewWillLeave() {
+    this.drawGeocaches();
+  }
+
+  initGeocaches() {
+    this.storage.getAllGeoCaches().then(async cacheData => {
+      if(cacheData.length == 0) {
+        await this.createGeocaches();
+      }
+      else {
+        this.caches = cacheData;
+      }
+      this.drawGeocaches();
+    });
+  }
+
+  async createGeocaches() {
+    var item0 = new GeocacheItem(),
+        item1 = new GeocacheItem(),
+        item2 = new GeocacheItem(),
+        item3 = new GeocacheItem(),
+        item4 = new GeocacheItem(),
+        item5 = new GeocacheItem(),
+        item6 = new GeocacheItem(),
+        item7 = new GeocacheItem(),
+        item8 = new GeocacheItem(),
+        item9 = new GeocacheItem();
+    item0.lat = 51.688184;
+    item0.lng = 5.286145;
+    item1.lat = 51.688124;
+    item1.lng = 5.286842;
+    item2.lat = 51.687708;
+    item2.lng = 5.286643;
+    item3.lat = 51.688526;
+    item3.lng = 5.286579;
+    item4.lat = 51.688972;
+    item4.lng = 5.286600;
+    item5.lat = 51.689005;
+    item5.lng = 5.285828;
+    item6.lat = 51.688293;
+    item6.lng = 5.285378;
+    item7.lat = 51.688373;
+    item7.lng = 5.287995;
+    item8.lat = 51.688133;
+    item8.lng = 5.284306;
+    item9.lat = 51.689284;
+    item9.lng = 5.284541;
+    var items = Array(item0, item1, item2, item3, item4, item5, item6, item7, item8, item9);
+    await this.storage.setGeocache(items);
+    this.caches = items;
+  }
+
+  drawGeocaches() {
+    this.markers.clearLayers();
+    this.caches.forEach(element => {
+      const marker = Leaflet.circleMarker([element.lat, element.lng], { radius: 30 }).addTo(this.markers); //30 pixel ≈ 11 m
+      if(!element.active) {
+        marker.setStyle({ color: "#FF0000"});
+      }
+      else {
+        marker.setStyle({ color: "#00FF00"});
+        // const scope = this;
+        // marker.on('click', () => {
+        //   if(scope.locationInRad(element.lat, element.lng, 11)) {
+        //     scope.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
+        //     element.active = false;
+        //     this.storage.setGeocache([element]);
+        //   }
+        // });
+      }
+    });
+  }
+
+  // addLocations(amount: number){
+  //   this.geolocation.getCurrentPosition().then(async geoData => {
+  //     const lat1 = geoData.coords.latitude;
+  //     const lng1 = geoData.coords.longitude;
+  //     for(let i = 0; i < amount; i++) {
+  //       const lat2 = lat1 + (Math.random() - 0.5) * 2 * 0.0005; //0.01 lat ≈ 1 km
+  //       const lng2 = lng1 + (Math.random() - 0.5) * 2 * 0.0005; //0.01 lng ≈ 1 km
+  //       // const distance = this.calcDistance(lat1, lng1, lat2, lng2);
+  //       // const scale = 40075016.686 * Math.abs(Math.cos(this.map.getCenter().lat * 180/Math.PI)) / Math.pow(2, this.map.getZoom()+8);
+  //       // marker.on('click', () => {
+  //       //   this.locationInRad(lat2, lng2, 11).then(data => {
+  //       //     console.log(data);
+  //       //   });
+  //       // });
+  //     }
+  //   }).catch((error) => {
+  //     console.log('Error getting location', error);
+  //   });
+  // }
+
+  locationInRad(lat1: number, lng1: number, radius: number) {
+    const lat2 = this.currentPos.lat;
+    const lng2 = this.currentPos.lng;
+    const distance = this.calcDistance(lat1, lng1, lat2, lng2);
+    return distance < radius;
+
+    // return new Promise(resolve => {
+    //   const lat2 = this.map.getCenter().lat;
+    //   const lng2 = this.map.getCenter().lng;
+    //   const distance = this.calcDistance(lat1, lng1, lat2, lng2);
+    //   resolve(distance < radius);
+    //   // this.geolocation.getCurrentPosition().then(geoData => {
+    //   //   const lat2 = geoData.coords.latitude;
+    //   //   const lng2 = geoData.coords.longitude;
+    //   //   const distance = this.calcDistance(lat1, lng1, lat2, lng2);
+    //   //   resolve(distance < radius);
+    //   // });
+    // });
+  }
+
+  calcDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
     var R = 6371e3; // radius of earth in meters
     var φ1 = lat1 * Math.PI / 180;
     var φ2 = lat2 * Math.PI / 180;
     var Δφ = (lat2 - lat1) * Math.PI / 180;
-    var Δλ = (lon2 - lon1) * Math.PI / 180;
+    var Δλ = (lng2 - lng1) * Math.PI / 180;
 
     var a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
             Math.cos(φ1) * Math.cos(φ2) *

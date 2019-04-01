@@ -9,11 +9,11 @@ import { NavController } from '@ionic/angular';
   styleUrls: ['tab2.page.scss']
 })
 export class Tab2Page {
-  public pokeObservable: Observable<any>;
+  public observable: Observable<any>;
 
   constructor(private navCtrl: NavController, private storage: StorageService){
-    this.pokeObservable = this.storage.pokeList;
-    this.storage.getPokemon();
+    this.observable = this.storage.pokemon;
+    this.storage.getAllPokemon();
   }
 
   pokeClicked(id: any) {
@@ -25,9 +25,9 @@ export class Tab2Page {
       value = '-';
     }
     this.storage.findPokemon(value).then(() => {
-      this.pokeObservable = this.storage.searchList;
+      this.observable = this.storage.search;
     }).catch(() => {
-      this.pokeObservable = this.storage.pokeList;
+      this.observable = this.storage.pokemon;
     });
   }
 }

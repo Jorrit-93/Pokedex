@@ -4,9 +4,19 @@ import { TabsPage } from './tabs.page';
 
 const routes: Routes = [
   {
+    path: '',
+    redirectTo: '/tabs/tab1',
+    pathMatch: 'full'
+  },
+  {
     path: 'tabs',
     component: TabsPage,
     children: [
+      {
+        path: '',
+        redirectTo: '/tabs/tab1',
+        pathMatch: 'full'
+      },
       {
         path: 'tab1',
         children: [
@@ -57,16 +67,19 @@ const routes: Routes = [
         ]
       },
       {
-        path: '',
-        redirectTo: '/tabs/tab1',
-        pathMatch: 'full'
+        path: 'catch',
+        children: [
+          {
+            path: '/:id',
+            loadChildren: '../poke-catch/poke-catch.module#PokeCatchPageModule'
+          },
+          {
+            path: '',
+            loadChildren: '../poke-catch/poke-catch.module#PokeCatchPageModule'
+          }
+        ]
       }
     ]
-  },
-  {
-    path: '',
-    redirectTo: '/tabs/tab1',
-    pathMatch: 'full'
   }
 ];
 
