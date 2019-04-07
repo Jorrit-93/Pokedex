@@ -19,10 +19,12 @@ export class PokeCatchPage {
 
   private index = 0;
   private sumG = 0;
+  private precision = 0;
+  private iteration = 1;
   private pickedUp: boolean
   private catching: boolean
 
-  private text = '';
+  private text = 'Put your phone down...';
 
   private permissions = AndroidPermissions.AndroidPermissions;
 
@@ -34,9 +36,8 @@ export class PokeCatchPage {
     // });
     // this.permissions.requestPermission(this.permissions.PERMISSION.Vibration).then(data => {
     //   console.log(data);
-    // });
-    // this.gyroscope.getCurrent().then(data => {
-    //   console.log(data);
+    // }).catch(err => {
+    //   console.log(err);
     // });
   }
 
@@ -53,31 +54,25 @@ export class PokeCatchPage {
 
   ionViewWillEnter() {
     var subscription = this.gyroscope.watch({ frequency: 50 }).subscribe(gyroData => {
-      var timeout: number;
-      var precision: number;
-      if(this.pickedUp) {
-        timeout = 25;
-        precision = 0.01;
-      }
-      else {
-        timeout = 5;
-        precision = 0.5;
-      }
-      if(this.index < timeout) {
+      if(this.index < this.iteration) {
         this.sumG = this.sumG + Math.abs(gyroData.x) + Math.abs(gyroData.y) + Math.abs(gyroData.z);
         this.index++;
       }
       else {
-        if(this.sumG / this.index > precision) {
+        if(this.sumG / this.index > this.precision) {
           if(!this.pickedUp) {
             if(!this.catching) {
-              this.text = 'Please put your phone down...'
+              this.iteration = 25;
+              this.precision = 0.01;
+              this.text = 'Put your phone down...'
             }
           }
           this.pickedUp = true;
         }
         else {
           if(this.pickedUp) {
+            this.iteration = 5;
+            this.precision = 0.5;
             this.text = 'Get ready...';
             const scope = this;
             setTimeout(() => {

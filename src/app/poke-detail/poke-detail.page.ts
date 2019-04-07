@@ -15,11 +15,11 @@ export class PokeDetailPage {
   public detailArray = Array<any>();
   public detailUpdate = function(){};
 
-  constructor(private route: ActivatedRoute, private pokeAPI: PokeAPIService) {
-    this.id = this.route.snapshot.paramMap.get('id');
-    this.initObservable();
-    this.getDetail();
-  }
+  constructor(private route: ActivatedRoute, private pokeAPI: PokeAPIService) { 
+    this.id = this.route.snapshot.paramMap.get('id'); 
+    this.initObservable(); 
+    this.getDetail(); 
+  } 
 
   initObservable(){
     this.detailObservable = new Observable(observed => {

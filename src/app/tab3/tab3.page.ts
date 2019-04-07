@@ -3,8 +3,8 @@ import { Geolocation } from '@ionic-native/geolocation/ngx';
 import { StorageService } from '../storage.service';
 import { NavController } from '@ionic/angular';
 import { GeocacheItem } from '../geocache-item';
-import Leaflet from 'leaflet';
-import { promise } from 'protractor';
+import { Map, LatLng, latLng, tileLayer, circleMarker, layerGroup } from 'leaflet';
+// import Leaflet from 'leaflet';
 
 @Component({
   selector: 'app-tab3',
@@ -12,69 +12,60 @@ import { promise } from 'protractor';
   styleUrls: ['tab3.page.scss']
 })
 export class Tab3Page {
-  private map: Leaflet.Map;
+  private map: Map;
   private markers: any;
   private caches: GeocacheItem[];
   private marker: any;
-  private currentPos: any;
+  private currentPos: LatLng;
   
-  constructor(public navCtrl: NavController, private geolocation: Geolocation, private storage: StorageService) {
-  }
+  constructor(public navCtrl: NavController, private geolocation: Geolocation, private storage: StorageService) { }
 
   ngOnInit() {
     if(this.map == null) {
-      this.map = Leaflet.map('map');
-      Leaflet.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attributions: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors', maxZoom: 18, minZoom: 13 }).addTo(this.map);
-      this.markers = Leaflet.layerGroup().addTo(this.map);
+      this.map = new Map('map', {
+        dragging: false,
+        doubleClickZoom: false,
+        inertia: false,
+        scrollWheelZoom: false,
+        touchZoom: false,
+        bounceAtZoomLimits: false,
+        minZoom: 18,
+        maxZoom: 18
+      });
+      tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors' }).addTo(this.map);
+      this.markers = layerGroup().addTo(this.map);
       const scope = this;
       setTimeout(() => { scope.map.invalidateSize(); }, 100);
     }
 
-    // this.geolocation.watchPosition({ timeout: 1000 }).subscribe(geoData => {
-    //   this.map.setView([geoData.coords.latitude, geoData.coords.longitude], 18);
-      
-    //   // this.map.on("move", () => {
-    //   //   this.marker.setLatLng([this.map.getCenter().lat, this.map.getCenter().lng]);
-    //   //   this.currentPos = this.map.getCenter();
-    //   //   this.caches.forEach(element => {
-    //   //     this.locationInRad(element.lat, element.lng, 11).then(data => {
-    //   //       if(data) {
-    //   //         this.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
-    //   //       }
-    //   //     });
-    //   //   });
-    //   // });
-    // });
+    this.marker = circleMarker([0, 0], { radius: 1});
+    this.marker.setStyle({ color: "#000000"});
+    this.map.setView([0, 0], 18);
+    this.marker.addTo(this.map);
 
-    this.marker = Leaflet.marker();
-    // this.geolocation.getCurrentPosition().then(async geoData => {
-      this.map.setView([51.688592, 5.287212], 18);
-      this.marker.setLatLng([this.map.getCenter().lat, this.map.getCenter().lng]);
-      this.marker.addTo(this.map);
-
-      // this.initGeocaches();
-      
-
-      // this.addLocations(10);
-
-      // this.geolocation.watchPosition().subscribe(geoData => {
-      //   this.map.setLatLng([geoData.coords.latitude, geoData.coords.longitude], 18);
-      // });
-    // });
-
-    const scope = this;
-    this.map.on('move', () => {
-      scope.currentPos = scope.map.getCenter();
-      scope.marker.setLatLng([scope.currentPos.lat, scope.currentPos.lng]);
-      scope.caches.forEach(element => {
-        if(element.active && scope.locationInRad(element.lat, element.lng, 11)) {
-          scope.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
-          element.active = false;
-          this.storage.setGeocache([element]);
-        }
-      });
-    });
+    this.initGeolocation();
     this.initGeocaches();
+  }
+
+  initGeolocation() {
+    const scope = this;
+    // this.map.on('move', () => {
+    this.geolocation.watchPosition().subscribe(geoData => {
+      scope.currentPos = latLng([geoData.coords.latitude, geoData.coords.longitude]);
+      scope.map.setView(scope.currentPos, 18);
+      scope.marker.setLatLng(scope.currentPos);
+      if(scope.caches != undefined) {
+        scope.caches.forEach(element => {
+          if(element.active && scope.locationInRad(element.lat, element.lng, 11)) {
+            scope.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
+            element.active = false;
+            this.storage.setGeocache([element]);
+          }
+        });
+      }
+    }, err => {
+      setTimeout(() => { scope.initGeolocation(); }, 1000);
+    });
   }
 
   ionViewWillLeave() {
@@ -82,7 +73,7 @@ export class Tab3Page {
   }
 
   initGeocaches() {
-    this.storage.getAllGeoCaches().then(async cacheData => {
+    this.storage.getAllGeocaches().then(async cacheData => {
       if(cacheData.length == 0) {
         await this.createGeocaches();
       }
@@ -132,62 +123,21 @@ export class Tab3Page {
   drawGeocaches() {
     this.markers.clearLayers();
     this.caches.forEach(element => {
-      const marker = Leaflet.circleMarker([element.lat, element.lng], { radius: 30 }).addTo(this.markers); //30 pixel ≈ 11 m
+      const marker = circleMarker([element.lat, element.lng], { radius: 30 }).addTo(this.markers); //30 pixel ≈ 11 m
       if(!element.active) {
         marker.setStyle({ color: "#FF0000"});
       }
       else {
         marker.setStyle({ color: "#00FF00"});
-        // const scope = this;
-        // marker.on('click', () => {
-        //   if(scope.locationInRad(element.lat, element.lng, 11)) {
-        //     scope.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
-        //     element.active = false;
-        //     this.storage.setGeocache([element]);
-        //   }
-        // });
       }
     });
   }
-
-  // addLocations(amount: number){
-  //   this.geolocation.getCurrentPosition().then(async geoData => {
-  //     const lat1 = geoData.coords.latitude;
-  //     const lng1 = geoData.coords.longitude;
-  //     for(let i = 0; i < amount; i++) {
-  //       const lat2 = lat1 + (Math.random() - 0.5) * 2 * 0.0005; //0.01 lat ≈ 1 km
-  //       const lng2 = lng1 + (Math.random() - 0.5) * 2 * 0.0005; //0.01 lng ≈ 1 km
-  //       // const distance = this.calcDistance(lat1, lng1, lat2, lng2);
-  //       // const scale = 40075016.686 * Math.abs(Math.cos(this.map.getCenter().lat * 180/Math.PI)) / Math.pow(2, this.map.getZoom()+8);
-  //       // marker.on('click', () => {
-  //       //   this.locationInRad(lat2, lng2, 11).then(data => {
-  //       //     console.log(data);
-  //       //   });
-  //       // });
-  //     }
-  //   }).catch((error) => {
-  //     console.log('Error getting location', error);
-  //   });
-  // }
 
   locationInRad(lat1: number, lng1: number, radius: number) {
     const lat2 = this.currentPos.lat;
     const lng2 = this.currentPos.lng;
     const distance = this.calcDistance(lat1, lng1, lat2, lng2);
     return distance < radius;
-
-    // return new Promise(resolve => {
-    //   const lat2 = this.map.getCenter().lat;
-    //   const lng2 = this.map.getCenter().lng;
-    //   const distance = this.calcDistance(lat1, lng1, lat2, lng2);
-    //   resolve(distance < radius);
-    //   // this.geolocation.getCurrentPosition().then(geoData => {
-    //   //   const lat2 = geoData.coords.latitude;
-    //   //   const lng2 = geoData.coords.longitude;
-    //   //   const distance = this.calcDistance(lat1, lng1, lat2, lng2);
-    //   //   resolve(distance < radius);
-    //   // });
-    // });
   }
 
   calcDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {

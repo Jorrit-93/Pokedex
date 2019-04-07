@@ -31,7 +31,7 @@ export class StorageService {
     this.storage.set(key, value);
   }
 
-  getAllGeoCaches(): Promise<GeocacheItem[]> {
+  getAllGeocaches(): Promise<GeocacheItem[]> {
     return new Promise(resolve => {
       this.createDataIfNull('caches').then(async data => {
         var geoCacheItems = [];
@@ -39,7 +39,7 @@ export class StorageService {
         for(var i = 0; i < data.length; i++) {
           var geoCacheItem = new GeocacheItem(data[i]);
           if(geoCacheItem.checkRefresh()) {
-            //get pokemon from api
+            //geocaches get refreshed
             updated = true;
           }
           geoCacheItems.push(geoCacheItem);
@@ -75,7 +75,7 @@ export class StorageService {
         for(var i = 0; i < data.length; i++) {
           var pokeItem = new PokeItem(data[i]);
           if(pokeItem.checkRefresh()) {
-            //get pokemon from api
+            //pokemon get refreshed
             await this.pokeAPI.findPokemon(pokeItem.pokemonID).then(pokeData => {
               pokeItem.pokemon = pokeData;
             });

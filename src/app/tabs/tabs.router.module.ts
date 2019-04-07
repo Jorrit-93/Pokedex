@@ -45,15 +45,6 @@ const routes: Routes = [
         ]
       },
       {
-        path: 'tab4',
-        children: [
-          {
-            path: '',
-            loadChildren: '../tab4/tab4.module#Tab4PageModule'
-          }
-        ]
-      },
-      {
         path: 'pokemon',
         children: [
           {
