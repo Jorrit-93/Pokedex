@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "658534270247",
+    "firebase_url": "https://mbd1-6a5e2.firebaseio.com",
+    "project_id": "mbd1-6a5e2",
+    "storage_bucket": "mbd1-6a5e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:658534270247:android:9bf35d5c7163f1f7",
+        "android_client_info": {
+          "package_name": "com.avans.mbd1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCrlD6pFQz--6G0Lnzl2cvjuh2XVEyfH9g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "658534270247-8umolinb6t4p0oci0uk405vvqerpkkna.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "658534270247-6nbn66rdudqf7kp5b4ro98clu1q4jdai.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.avans.mbd1"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

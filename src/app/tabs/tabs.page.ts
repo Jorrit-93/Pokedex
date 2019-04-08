@@ -14,7 +14,7 @@ export class TabsPage {
     this.fcm.getToken();
     this.fcm.listenToNotifications().pipe(tap(msg => {
       const toast = this.toastCtrl.create({
-        message: msg.body,
+        message: 'msg.body',
         duration: 3000
       });
       toast.present();

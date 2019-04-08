@@ -28,7 +28,7 @@ const firebase = {
   databaseURL: "https://mbd1-6a5e2.firebaseio.com",
   projectId: "mbd1-6a5e2",
   storageBucket: "",
-  messagingSenderId: ""
+  messagingSenderId: "5200535fc0732539"
 }
 
 @NgModule({
