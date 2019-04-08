@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { Geolocation } from '@ionic-native/geolocation/ngx';
-import { StorageService } from '../storage.service';
+import { StorageService } from '../services/storage.service';
 import { NavController } from '@ionic/angular';
-import { GeocacheItem } from '../geocache-item';
+import { GeocacheItem } from '../storage_items/geocache-item';
 import { Map, LatLng, latLng, tileLayer, circleMarker, layerGroup } from 'leaflet';
 // import Leaflet from 'leaflet';
 

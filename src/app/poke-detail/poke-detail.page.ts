@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { PokeAPIService } from '../poke-api.service';
+import { PokeAPIService } from '../services/poke-api.service';
 import { Observable } from 'rxjs';
 
 @Component({

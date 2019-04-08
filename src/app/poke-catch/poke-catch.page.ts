@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
-import { StorageService } from '../storage.service';
+import { StorageService } from '../services/storage.service';
 import { ActivatedRoute } from '@angular/router';
-import { PokeAPIService } from '../poke-api.service';
+import { PokeAPIService } from '../services/poke-api.service';
 import { Gyroscope } from '@ionic-native/gyroscope/ngx';
 import { Vibration } from '@ionic-native/vibration/ngx';
 import { Observable } from 'rxjs';
 import * as AndroidPermissions from '@ionic-native/android-permissions';
-import { PokeItem } from '../poke-item';
+import { PokeItem } from '../storage_items/poke-item';
 
 @Component({
   selector: 'app-poke-catch',

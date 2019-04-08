@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage';
 import { Observable, BehaviorSubject } from 'rxjs';
-import { PokeItem } from './poke-item';
-import { GeocacheItem } from './geocache-item';
-import { PokeAPIService } from './poke-api.service';
+import { PokeItem } from '../storage_items/poke-item';
+import { GeocacheItem } from '../storage_items/geocache-item';
+import { PokeAPIService } from '../services/poke-api.service';
 
 @Injectable({
   providedIn: 'root'

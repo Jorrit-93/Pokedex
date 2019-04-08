@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PokeAPIService } from '../poke-api.service';
+import { PokeAPIService } from '../services/poke-api.service';
 import { Observable } from 'rxjs';
 import { NavController } from '@ionic/angular';
 
