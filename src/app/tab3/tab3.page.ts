@@ -51,17 +51,22 @@ export class Tab3Page {
     const scope = this;
     // this.map.on('move', () => {
     this.geolocation.watchPosition().subscribe(geoData => {
-      scope.currentPos = latLng([geoData.coords.latitude, geoData.coords.longitude]);
-      scope.map.setView(scope.currentPos, 18);
-      scope.marker.setLatLng(scope.currentPos);
-      if(scope.caches != undefined) {
-        scope.caches.forEach(element => {
-          if(element.active && scope.locationInRad(element.lat, element.lng, 11)) {
-            scope.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
-            element.active = false;
-            this.storage.setGeocache([element]);
-          }
-        });
+      if(geoData.coords != undefined) {
+        scope.currentPos = latLng([geoData.coords.latitude, geoData.coords.longitude]);
+        scope.map.setView(scope.currentPos, 18);
+        scope.marker.setLatLng(scope.currentPos);
+        if(scope.caches != undefined) {
+          scope.caches.forEach(element => {
+            if(element.active && scope.locationInRad(element.lat, element.lng, 11)) {
+              scope.navCtrl.navigateRoot('/tabs/catch/' + window.btoa(element.pokemonID));
+              element.active = false;
+              this.storage.setGeocache([element]);
+            }
+          });
+        }
+      }
+      else {
+        setTimeout(() => { scope.initGeolocation(); }, 1000);
       }
     }, err => {
       setTimeout(() => { scope.initGeolocation(); }, 1000);
