@@ -33,7 +33,7 @@
     "@types/leaflet": "^1.4.3",
     "angular": "^1.7.7",
     "cordova-android": "8.0.0",
-    "cordova-ios": "^4.5.5",
+    "cordova-ios": "5.0.0",
     "cordova-plugin-android-permissions": "1.0.0",
     "cordova-plugin-device": "^2.0.2",
     "cordova-plugin-geolocation": "4.0.1",
@@ -101,7 +101,6 @@
       "onesignal-cordova-plugin": {}
     },
     "platforms": [
-      "ios",
       "android"
     ]
   }
